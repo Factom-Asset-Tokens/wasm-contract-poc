@@ -1,0 +1,13 @@
+{
+  "description": "Add two numbers together in AssemblyScript(TypeScript)",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "rm -f build/add.wasm && asc add.ts --baseDir src --binaryFile ../build/add.wasm --measure",
+    "test": "npm run build && mocha test/add.unit.spec.js"
+  },
+  "devDependencies": {
+    "assemblyscript": "AssemblyScript/assemblyscript",
+    "chai": "4.2.0",
+    "mocha": "6.1.4"
+  }
+}
