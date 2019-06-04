@@ -2,7 +2,7 @@ const assert = require('chai').assert;
 const fs = require('fs');
 const path = require("path");
 
-describe('C: Add Two Numbers', function () {
+describe('C WASM: Add Two Numbers', function () {
 
     let instance;
     it('Instantiate WASM File', async function () {
@@ -34,10 +34,6 @@ describe('C: Add Two Numbers', function () {
         assert.strictEqual(instance.exports._add(5, 31), 36); //add two numbers
         assert.strictEqual(instance.exports._add(-5, 5), 0); //add signed numbers
 
-        //test running addition
-        assert.strictEqual(instance.exports._addRunning(99), 99); //add 99 to the running balance, result should be 99
-        assert.strictEqual(instance.exports._addRunning(1), 100); //add 1 to the running balance, result should be 100
-
         //check for addition mistakes
         assert.notStrictEqual(instance.exports._add(5, 31), 37);
 
@@ -46,5 +42,11 @@ describe('C: Add Two Numbers', function () {
         assert.doesNotThrow(() => instance.exports._add(5, "A"));
         assert.doesNotThrow(() => instance.exports._add(5, 3.501));
         assert.doesNotThrow(() => instance.exports._add(5));
+    });
+
+    it('Running Addition', async function () {
+        //test persistence of state over multiple calls
+        assert.strictEqual(instance.exports._addRunning(99), 99); //add 99 to the running balance, result should be 99
+        assert.strictEqual(instance.exports._addRunning(1), 100); //add 1 to the running balance, result should be 100
     });
 });
