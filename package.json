@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Factom-Asset-Tokens/wasm-contract-poc/issues"
   },
-  "homepage": "https://github.com/Factom-Asset-Tokens/wasm-contract-poc#readme"
+  "homepage": "https://github.com/Factom-Asset-Tokens/wasm-contract-poc#readme",
+  "dependencies": {
+    "factom": "1.2.2"
+  }
 }
