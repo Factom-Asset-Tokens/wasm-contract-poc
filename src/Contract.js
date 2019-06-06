@@ -22,11 +22,12 @@ class Contract {
         const first = entries.shift();
         entries = entries.map((entry) => {
             try {
-                return Object.assign({entryhash: entry.hashHex()}, JSON.parse(entry.contentHex));
+                return Object.assign({entryhash: entry.hashHex()}, JSON.parse(entry.content.toString()));
             } catch (e) {
-                console.log("JSON Parse Error:", entry.hashHex())
+                console.log("JSON Parse Error:", entry.hashHex(), e.message)
             }
         });
+        entries = entries.filter((entry) => entry !== undefined);
 
         if (!first.extIds[0]) throw new Error('Contract extId not found');
 
@@ -34,11 +35,11 @@ class Contract {
         this._contract = Buffer.from(first.extIds[0], 'binary');
 
         //load the contract buffer into the WASM environment
-        this._imports = util.getDefaultImports();
-        this._wasm = await WebAssembly.instantiate(this._contract, this._imports);
+        const imports = util.getDefaultImports();
+        this._wasm = await WebAssembly.instantiate(this._contract, imports);
 
         //inject imports into the WASM object
-        this._wasm.imports = this._imports;
+        this._wasm.imports = imports;
 
         //apply the state changes in order from the entries
         const self = this;
@@ -55,6 +56,8 @@ class Contract {
                 console.error("WASM Entry Error:", e.message);
             }
         });
+        console.log("Loaded", entries.length, "State Changes")
+
         this._init = true;
     }
 
@@ -65,7 +68,7 @@ class Contract {
 
         //copy memory (state) between current and copy instance
         const newMem = new Uint32Array(imports.env.memory.buffer);
-        const oldMem = new Uint32Array(this._imports.env.memory.buffer);
+        const oldMem = new Uint32Array(this._wasm.imports.env.memory.buffer);
         for (let i = 0; i < oldMem.length; i++) {
             newMem[i] = oldMem[i];
         }
@@ -82,18 +85,22 @@ class Contract {
         const wasm = await this.getWASM();
         const result = wasm.instance.exports[func](...args);
 
-        //If the call changed the state of the contract(hash of memory or table)
+        //check if there was a state change in memory resulting from the call
+        const delta = !util.bufferEqual(wasm.imports.env.memory.buffer, this._wasm.imports.env.memory.buffer);
+
+        //If the call changed the state of the contract(memory)
         //And writing is enabled then publish the call to Factom as it's a writing call
-        /*if (write) {
+        if (delta && write) {
             const entry = Entry.builder()
                 .chainId(this._id)
-                .content(JSON.stringify({func, args}), 'hex')
+                .extId(crypto.randomBytes(16).toString('hex'), 'hex')
+                .content(JSON.stringify({func, args}), 'utf8')
                 .build();
 
-            const commit = await cli.add(entry, process.env.es);
-            const entryhash = commit.entryhash;
+            await cli.add(entry, process.env.es);
+            const entryhash = entry.hashHex();
             return {result, entryhash}
-        }*/
+        }
 
         return {result};
     }
