@@ -47,7 +47,7 @@ class Contract {
             const args = entry.args;
 
             try {
-                const result = self._wasm.instance.exports[func](args);
+                const result = self._wasm.instance.exports[func](...args);
 
                 //store result and valid function call in memory for later
                 self._entries.set(entry.entryhash, Object.assign(entry, {result}));
@@ -69,6 +69,7 @@ class Contract {
         for (let i = 0; i < oldMem.length; i++) {
             newMem[i] = oldMem[i];
         }
+
         const wasm = await WebAssembly.instantiate(this._contract, imports);
         wasm.imports = imports;
         return wasm;
@@ -83,7 +84,7 @@ class Contract {
 
         //If the call changed the state of the contract(hash of memory or table)
         //And writing is enabled then publish the call to Factom as it's a writing call
-        if (write) {
+        /*if (write) {
             const entry = Entry.builder()
                 .chainId(this._id)
                 .content(JSON.stringify({func, args}), 'hex')
@@ -92,7 +93,7 @@ class Contract {
             const commit = await cli.add(entry, process.env.es);
             const entryhash = commit.entryhash;
             return {result, entryhash}
-        }
+        }*/
 
         return {result};
     }

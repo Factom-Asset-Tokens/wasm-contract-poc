@@ -34,4 +34,8 @@ describe('Contract', function () {
         assert.instanceOf(wasm.module, WebAssembly.Module);
     });
 
+    it('Call Contract Function (Add)', async function () {
+        const call = await contract.call('_add', [1, 2]);
+        assert.strictEqual(call.result, 3)
+    });
 });
