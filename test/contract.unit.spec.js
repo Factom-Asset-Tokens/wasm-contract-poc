@@ -18,4 +18,12 @@ describe('Contract', function () {
 
         assert.isString(result);
     });
+
+    let contract;
+    it('Load A Contract', async function () {
+        contract = new Contract('56024e237fea9c145a8ddc438bc33eb0131173f8e7cabf8b8947992fe7acff5d');
+        await contract.init();
+
+        console.log('Loaded add.wasm contract!');
+    });
 });
