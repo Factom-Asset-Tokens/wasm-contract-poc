@@ -18,5 +18,9 @@
   "homepage": "https://github.com/Factom-Asset-Tokens/wasm-contract-poc#readme",
   "dependencies": {
     "factom": "1.2.2"
+  },
+  "devDependencies": {
+    "chai": "4.2.0",
+    "mocha": "6.1.4"
   }
 }

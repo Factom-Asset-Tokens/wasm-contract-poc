@@ -9,12 +9,6 @@ const factomParams = {
 const {FactomCli, Entry, Chain} = require('factom');
 const cli = new FactomCli(factomParams);
 
-const {InteractiveReader} = require('factom-storage/src/read/InteractiveReader');
-const reader = new InteractiveReader(factomParams);
-
-const {InteractiveWriter} = require('factom-storage/src/write/InteractiveWriter');
-const writer = new InteractiveWriter(factomParams);
-
 class Contract {
     constructor(id) {
         this._id = id;
@@ -25,6 +19,7 @@ class Contract {
     async init() {
         if (this._init) return;
         let entries = await cli.getAllEntriesOfChain(this._id);
+        const first = entries.shift();
         entries = entries.map((entry) => {
             try {
                 return Object.assign({entryhash: entry.hashHex()}, JSON.parse(entry.contentHex));
@@ -33,11 +28,10 @@ class Contract {
             }
         });
 
-        //validate the first entry (JOI)
-        const first = entries.shift();
+        if (!first.extIds[0]) throw new Error('Contract extId not found');
 
         //load the WASM contract from the first entry's contract chain ID
-        const contract = await reader.read(first.chain);
+        const contract = Buffer.from(first.extIds[0], 'binary');
 
         //load the contract buffer into the WASM environment
         this._wasm = await WebAssembly.instantiate(contract, util.getDefaultImports());
@@ -96,18 +90,9 @@ class Contract {
         //Check that this is a valid WASM contract & will run
         const wasm = await WebAssembly.instantiate(contract, util.getDefaultImports());
 
-        //Store the WASM contract on Factom and get the resulting chain ID
-        const commit = await writer.write(contract, process.env.es);
-        const id = commit.chainId;
-
-        const content = {
-            chain: id,
-            metadata: params.metadata
-        };
-
         const entry = Entry.builder()
+            .extId(contract, 'binary') //salt the contract to make the deployment random
             .extId(crypto.randomBytes(16).toString('hex'), 'hex') //salt the contract to make the deployment random
-            .content(JSON.stringify(content, 'hex'))
             .build();
 
         const chain = new Chain(entry);
