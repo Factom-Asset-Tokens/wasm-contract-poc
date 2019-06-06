@@ -1,6 +1,9 @@
 const crypto = require('crypto');
 const util = require('./util');
 
+const persist = require('wasm-persist');
+
+
 const factomParams = {
     host: process.env.host,
     port: process.env.port
@@ -31,11 +34,11 @@ class Contract {
         if (!first.extIds[0]) throw new Error('Contract extId not found');
 
         //load the WASM contract from the first entry's contract chain ID
-        const contract = Buffer.from(first.extIds[0], 'binary');
+        this._contract = Buffer.from(first.extIds[0], 'binary');
 
         //load the contract buffer into the WASM environment
-        this._wasm = await WebAssembly.instantiate(contract, util.getDefaultImports());
-        this._exports = this._wasm.instance.exports;
+        this._imports = util.getDefaultImports();
+        this._wasm = await WebAssembly.instantiate(this._contract, this._imports);
 
         //apply the state changes in order from the entries
         const self = this;
@@ -44,7 +47,7 @@ class Contract {
             const args = entry.args;
 
             try {
-                const result = wasm.instance.exports[func](args);
+                const result = self._wasm.instance.exports[func](args);
 
                 //store result and valid function call in memory for later
                 self._entries.set(entry.entryhash, Object.assign(entry, {result}));
@@ -55,12 +58,27 @@ class Contract {
         this._init = true;
     }
 
+    //get a safe copy of the WASM instance & module running in the
+    //contract at the current state
+    async getWASM() {
+        const imports = util.getDefaultImports();
+
+        //copy memory (state) between current and copy instance
+        const newMem = new Uint32Array(imports.env.memory.buffer);
+        const oldMem = new Uint32Array(this._imports.env.memory.buffer);
+        for (let i = 0; i < oldMem.length; i++) {
+            newMem[i] = oldMem[i];
+        }
+
+        return await WebAssembly.instantiate(this._contract, imports);
+    }
+
     async call(func, args, write = true) {
         await this.init();
 
         //attempt to make the call on a copy of the contract and return the result
         const wasm = await WebAssembly.instantiate(this._wasm);
-        const result = wasm.instance.exports[func](args);
+        const result = wasm.instance.exports[func](...args);
 
         //If the call changed the state of the contract(hash of memory or table)
         //And writing is enabled then publish the call to Factom as it's a writing call

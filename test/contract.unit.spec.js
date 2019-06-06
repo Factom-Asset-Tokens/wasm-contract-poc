@@ -26,4 +26,11 @@ describe('Contract', function () {
 
         console.log('Loaded add.wasm contract!');
     });
+
+    it('Get WASM Instance Copy', async function () {
+        const wasm = await contract.getWASM();
+        assert.instanceOf(wasm.instance, WebAssembly.Instance);
+        assert.instanceOf(wasm.module, WebAssembly.Module);
+    });
+
 });
