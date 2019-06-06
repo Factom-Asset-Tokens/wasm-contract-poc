@@ -1,9 +1,6 @@
 const crypto = require('crypto');
 const util = require('./util');
 
-const persist = require('wasm-persist');
-
-
 const factomParams = {
     host: process.env.host,
     port: process.env.port
@@ -40,6 +37,9 @@ class Contract {
         this._imports = util.getDefaultImports();
         this._wasm = await WebAssembly.instantiate(this._contract, this._imports);
 
+        //inject imports into the WASM object
+        this._wasm.imports = this._imports;
+
         //apply the state changes in order from the entries
         const self = this;
         entries.forEach(function (entry) {
@@ -69,15 +69,16 @@ class Contract {
         for (let i = 0; i < oldMem.length; i++) {
             newMem[i] = oldMem[i];
         }
-
-        return await WebAssembly.instantiate(this._contract, imports);
+        const wasm = await WebAssembly.instantiate(this._contract, imports);
+        wasm.imports = imports;
+        return wasm;
     }
 
     async call(func, args, write = true) {
         await this.init();
 
         //attempt to make the call on a copy of the contract and return the result
-        const wasm = await WebAssembly.instantiate(this._wasm);
+        const wasm = await this.getWASM();
         const result = wasm.instance.exports[func](...args);
 
         //If the call changed the state of the contract(hash of memory or table)

@@ -29,6 +29,7 @@ describe('Contract', function () {
 
     it('Get WASM Instance Copy', async function () {
         const wasm = await contract.getWASM();
+        assert.isObject(wasm.imports);
         assert.instanceOf(wasm.instance, WebAssembly.Instance);
         assert.instanceOf(wasm.module, WebAssembly.Module);
     });
