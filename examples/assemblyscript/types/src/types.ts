@@ -1,4 +1,4 @@
-export {memory}
+//export the runtime ID of Int32Array, required to pass in Arrays from outside
 export const INT32ARRAY = idof<Int32Array>();
 /*
 *
