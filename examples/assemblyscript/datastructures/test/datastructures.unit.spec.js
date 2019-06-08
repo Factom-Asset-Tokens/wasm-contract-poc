@@ -55,7 +55,7 @@ describe('AssemblyScript WASM: Datastructures', function () {
         });
 
         it("Pop", function () {
-            //Pull a value off the top of the array (length-1)
+            //Pull a value off the end of the array (length-1)
             let pointer = module.arrayPop();
             let string = module.__getString(pointer);
             module.__release(pointer);
@@ -69,10 +69,19 @@ describe('AssemblyScript WASM: Datastructures', function () {
             assert.strictEqual(string, "a");
         });
 
+        it("Shift", function () {
+            //Pull a value off the beginning of the array (0)
+            let pointer = module.arrayShift();
+            let string = module.__getString(pointer);
+            module.__release(pointer);
+
+            assert.strictEqual(string, "hey");
+        });
+
         it("Length", function () {
             //after pop length should be 3 down from 5
             let length = module.arrayLength();
-            assert.strictEqual(length, 3);
+            assert.strictEqual(length, 2);
 
             //pop a value off of the array to test the length works
             let pointer = module.arrayPop();
@@ -81,8 +90,8 @@ describe('AssemblyScript WASM: Datastructures', function () {
 
             assert.strictEqual(string, 'did');
 
-            // console.log('ARRV', module.arrayGet(4))
-            // assert.strictEqual(length, 3);
+            length = module.arrayLength();
+            assert.strictEqual(length, 1);
         });
     });
 

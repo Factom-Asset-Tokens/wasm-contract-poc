@@ -62,6 +62,36 @@ describe('Map', function () {
 
 ## API
 
+### `arrayPush(string(i32) x)` - `void`
+
+Add the string at pointer x to the end of the internal Array<string>
+
+
+
+### `arrayPop()` - `string(i32)`
+
+Remove the last element from the internal array and return the pointer to the string element
+
+
+
+### `arrayShift()` - `string(i32)`
+
+Remove the first element from the internal array and return the pointer to the string element
+
+
+
+### `arrayGet(string(i8) x)` - `void`
+
+Get the pointer to the string at index x in the internal Array<string>
+
+
+
+### `arrayLength()` - `i32`
+
+Return the length of the internal Array<string>
+
+
+
 ### `setAdd(string(i32) x)` - `void`
 
 Add the string at pointer x to the internal Set<string>
