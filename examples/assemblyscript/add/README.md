@@ -28,7 +28,7 @@ npm install
 ### Development Workflow
 
 1. Write AssemblyScript code with exported functions
-2. [Compile](#compiling-c-to-wasm) the AssemblyScript code to WASM
+2. [Compile](#compiling-assemblyscript-to-wasm) the AssemblyScript code to WASM
 3. Modify tests in `test/` to test functions exported from AssemblyScript code
 4. [Run tests](#testing)
 5. Repeat!
