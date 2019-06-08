@@ -1,6 +1,6 @@
-# AssemblyScript WASM - Add Numbers
+# AssemblyScript WASM - Datastructures
 
-This example package demonstrates compiling a simple AssemblyScript program, `datastructures.ts` which adds two numbers to WASM, executing it in a host environment, and accessing it's methods.
+This example package demonstrates compiling a AssemblyScript program, `datastructures.ts` which demonstrates working with the AssemblyScript `Map` and `Set` data structures.
 
 
 
@@ -22,7 +22,7 @@ To compile the `datastructures.ts` code to a WASM binary:
 npm run build
 ```
 
-A `types.wasm` file will be produced in the `build` directory
+A `datastructures.wasm` file will be produced in the `build` directory
 
 
 
@@ -34,20 +34,24 @@ Test the module outside of the context of the blockchain:
 npm test
 ```
 
-This will run NodeJS based tests in the `test` directory. For example in `types.unit.spec.js` test instantiation of the compiled WASM module, and assertions to verify its API and behavior:
+This will run NodeJS based tests in the `test` directory. For example in `datastructures.unit.spec.js` test instantiation of the compiled WASM module, and assertions to verify its API and behavior:
 
 ```javascript
-describe('Strings', function () {
-        it('Get String', function () {
+describe('Map', function () {
+        it('Set', function () {
+            //create a pointer to the string param "hello" we will pass in as the value
+            let paramPointer0 = module.__retain(module.__allocString("hello"));
 
-            //use the __getString AssemblyScript wrapper to get the value from the pointer returned
-            const pointer = module.getString();
+            //set the key 0 => "hello"
+            module.mapSet(0, paramPointer0);
+            module.__release(paramPointer0); //release the memory for the pointer
+            
+            //get the value from memory
+            const pointer = module.mapGet(0);
             const string = module.__getString(pointer);
-
-            //release the result pointer
             module.__release(pointer);
 
-            assert.strictEqual(string, "It's Alive!!!");
+            assert.strictEqual(string, 'hello'); // => true!
         });
     
     ...
@@ -58,79 +62,37 @@ describe('Strings', function () {
 
 ## API
 
-### `add(i32 x, i32 y)` - `i32`
+### `setAdd(string(i32) x)` - `void`
 
-Add two integers, return the result
-
-
-
-### `getFloat()` - `f64`
-
-Return the double representation of 1.001
+Add the string at pointer x to the internal Set<string>
 
 
 
-### `addFloats(f64 x, f64 y)` - `f64`
+### `setHas(string(i32) x)` - `i32`
 
-Returns the float result of adding two floating point numbers together
-
-
-
-### `getTrue()` - `i32`
-
-Return the integer representation of true (1)
+Check if the string at pointer x is contained in the internal Set<string>. Return the integer representation of the boolean result (0/1)
 
 
 
-### `getFalse()` - `i32`
+### `setSize()` - `i32`
 
-Return the integer representation of false (0)
-
-
-
-### `echoBoolean(i32 x)` - `i32`
-
-Return the integer representation of i32 x
+Return the number of elements in the internal Set<string> (cardinality)
 
 
 
-### `negate(boolean x)` - `i32`
+### `mapSet(i32 k, string(i32) v)` - `i32`
 
-Return the boolean negation of integer representation of boolean x
-
-
-
-### `or(boolean x, boolean y)` - `i32`
-
-Return the integer representation of boolean x or'd with boolean y
+Set the integer key k in the internal Map<i32, string> to string value at pointer v
 
 
 
-### `getString()` - `i32`
+### `mapGet(i32 k)` - `string(i32)`
 
-Returns a pointer in memory to a string "It's Alive!!!"
-
-
-
-### `getExcitingString(string(i32) x)` - `string(i32)`
-
-Appends an exclamation point on the end of string pointer x
+Return the pointer to the string value in memory mapped to int k
 
 
 
-### `concat(string(i32) x, string(i32) y)` - `string(i32)`
+### `mapSize()` - `i32`
 
-Appends string pointer x to string pointer y and returns a pointer to the result
-
-
-
-### `getIntArray()` - `array(i32)`
-
-Returns a pointer in memory the integer array [1, 1, 3, 5, 8]
-
-
-
-### `getLength(array(i32) x)` - `i32`
-
-Returns the length of the array at pointer x
+Return the number of keys in the internal Map<i32, string>
 

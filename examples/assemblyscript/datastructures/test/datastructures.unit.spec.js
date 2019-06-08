@@ -91,11 +91,14 @@ describe('AssemblyScript WASM: Datastructures', function () {
         });
 
         it("Get", function () {
-            const pointer = module.mapGet(2);
-            const string = module.__getString(pointer);
+            let pointer = module.mapGet(2);
+            let string = module.__getString(pointer);
             module.__release(pointer);
 
             assert.strictEqual(string, 'world!');
+
+            //trying to get a nonexistant key throws a RuntimeError
+            assert.throws(() => module.mapGet(5));
         });
 
         it("Size", function () {
