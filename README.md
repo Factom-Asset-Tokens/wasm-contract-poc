@@ -12,8 +12,11 @@ This repository maintains a number of examples of how to build and test WASM bin
 
 ### C
 
-- [Addition](examples/c/add/README.md) - Add two numbers and return the result. Also demonstrates persistence of  contract state across calls
+- [Addition](examples/c/add) - Add two numbers and return the result. Also demonstrates persistence of  contract state across calls
+- [Types](examples/c/types) - Demonstrate submitting and working with types in C
 
 ### AssemblyScript
 
-- [Addition](examples/c/add/README.md) - Add two numbers and return the result. Also demonstrates persistence of  contract state across calls
+- [Addition](examples/assemblyscript/add) - Add two numbers and return the result. Also demonstrates persistence of  contract state across calls
+- [Types](examples/assemblyscript/types) - Add two numbers and return the result. Also demonstrates persistence of  contract state across calls
+
