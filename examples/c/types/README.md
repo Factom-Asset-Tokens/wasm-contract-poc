@@ -1,6 +1,6 @@
-# C WASM - Add Numbers
+# C WASM - Working With Types
 
-This example package demonstrates compiling a simple C program, `add.c` which adds two numbers to WASM, executing it in a host environment, and accessing it's methods.
+This example package demonstrates compiling a C program, `types.c` which working with types pased to WASM from JS
 
 
 
@@ -12,7 +12,7 @@ This example package demonstrates compiling a simple C program, `add.c` which ad
 npm run build
 ```
 
-A `add.wasm` file will be produced in the `build` directory
+A `types.wasm` file will be produced in the `build` directory
 
 
 
@@ -26,14 +26,75 @@ npm test
 
 
 
-## API
+## JS API
+
+### `_getTen()` - `int`
+
+Return the number 10
+
+
 
 ### `_add(int x, int y)` - `int`
 
-Add two integers together and returns the result
+Add two integers, return the result
 
 
 
-### `_addRunning(int x)` - `int`
+### `_mult(int x, int y)` - `int`
 
-Add an integer to a running total and returns the resulting running total
+Multiply two integers, return the result
+
+
+
+### `_getTenPointZeroOne()` - `double`
+
+Return the double representation of 10.01
+
+
+
+### IN PROGRESS:`_addFloats(number x, number y)` - `number`
+
+Returns the float result of adding two floating point numbers together
+
+
+
+### `_getTrue()` - `integer`
+
+Return the integer representation of true (1)
+
+
+
+### `_getFalse()` - `integer`
+
+Return the integer representation of false (0)
+
+
+
+### `_echo(boolean x)` - `integer`
+
+Return the integer representation of boolean x
+
+
+
+### `_negate(boolean x)` - `integer`
+
+Return the boolean negation of integer representation of boolean x
+
+
+
+### `_or(boolean x, boolean y)` - `integer`
+
+Return the integer representation of boolean x or'd with boolean y
+
+
+
+### `_getString()` - `integer`
+
+Returns a pointer in memory to a string "It's Alive!!!"
+
+
+
+### IN PROGRESS: `_echoString(string x)` - `integer`
+
+Returns a pointer in memory to string x
+
