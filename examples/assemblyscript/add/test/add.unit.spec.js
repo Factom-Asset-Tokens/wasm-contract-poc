@@ -2,50 +2,39 @@ const assert = require('chai').assert;
 const fs = require('fs');
 const path = require("path");
 
+const util = require('../../../../src/util');
+const loader = require("assemblyscript/lib/loader");
+
 describe('AssemblyScript WASM: Add Two Numbers', function () {
 
-    let instance;
+    let module;
     it('Instantiate WASM File', async function () {
-        const memory = new WebAssembly.Memory({initial: 256, maximum: 256});
-        const imports = {
-            env: {
-                abortStackOverflow: () => {
-                    throw new Error('overflow');
-                },
-                table: new WebAssembly.Table({initial: 0, maximum: 0, element: 'anyfunc'}),
-                __table_base: 0,
-                memory: memory,
-                __memory_base: 1024,
-                STACKTOP: 0,
-                STACK_MAX: memory.buffer.byteLength,
-            }
-        };
+        const imports = util.getDefaultImports();
 
         const buffer = fs.readFileSync(path.resolve(__dirname, '../build/add.wasm'));
-        const result = await WebAssembly.instantiate(buffer, imports);
-        instance = result.instance;
+        module = await loader.instantiateBuffer(buffer, imports);
 
-        assert.isFunction(instance.exports.add);
+        assert.isFunction(module.add);
     });
 
     it('Add Two Numbers', async function () {
         //test addition
-        assert.strictEqual(instance.exports.add(5, 31), 36); //add two numbers
-        assert.strictEqual(instance.exports.add(-5, 5), 0); //add signed numbers
+        assert.strictEqual(module.add(5, 31), 36); //add two numbers
+        assert.strictEqual(module.add(-5, 5), 0); //add signed numbers
 
         //check for addition mistakes
-        assert.notStrictEqual(instance.exports.add(5, 31), 37);
+        assert.notStrictEqual(module.add(5, 31), 37);
 
         //Demonstrate how passing the wrong type or no type is ignored
         //This will not throw an error, instead the default C int value is used (0)
-        assert.doesNotThrow(() => instance.exports.add(5, "A"));
-        assert.doesNotThrow(() => instance.exports.add(5, 3.501));
-        assert.doesNotThrow(() => instance.exports.add(5));
+        assert.doesNotThrow(() => module.add(5, "A"));
+        assert.doesNotThrow(() => module.add(5, 3.501));
+        assert.doesNotThrow(() => module.add(5));
     });
 
     it('Running Addition', async function () {
         //test persistence of state over multiple calls
-        assert.strictEqual(instance.exports.addRunning(99), 99); //add 99 to the running balance, result should be 99
-        assert.strictEqual(instance.exports.addRunning(1), 100); //add 1 to the running balance, result should be 100
+        assert.strictEqual(module.addRunning(99), 99); //add 99 to the running balance, result should be 99
+        assert.strictEqual(module.addRunning(1), 100); //add 1 to the running balance, result should be 100
     });
 });
