@@ -24,7 +24,8 @@ This repository maintains a number of examples of how to build and test WASM bin
   - Floating Point Numbers
   - Strings
   - Arrays
-- [Data Structures](examples/assemblyscript/datastructures) - Demonstrates working with common data structures calling compiled AssemblyScript WASM from JS
+- [Data Structures](examples/assemblyscript/datastructures) - Demonstrates working with common high level data structures in AS and calling compiled AssemblyScript WASM from JS
+  - Array<type>
   - Set<type>
   - Map (k<type> => v<type>)
 
