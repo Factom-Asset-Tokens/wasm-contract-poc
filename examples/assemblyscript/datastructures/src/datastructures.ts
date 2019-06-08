@@ -1,5 +1,33 @@
 /*
 *
+* Array - Model a ordered collection of typed elements
+* https://docs.assemblyscript.org/standard-library/array#methods - You can use most native JS array methods <3
+* */
+
+let array: string[] = new Array(); //NOTE: let array: string[] = []; results in an error
+
+export function arrayPush(x: string): void {
+    array.push(x);
+}
+
+export function arrayPop(): string {
+    return array.pop();
+}
+
+export function arrayShift(): string {
+    return array.shift();
+}
+
+export function arrayGet(x: i8): string {
+    return array[x];
+}
+
+export function arrayLength(): i32 {
+    return array.length;
+}
+
+/*
+*
 * Set - Model a mathematical set, no duplicates
 *
 * */

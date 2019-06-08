@@ -16,6 +16,76 @@ describe('AssemblyScript WASM: Datastructures', function () {
         module = await loader.instantiateBuffer(buffer, imports);
     });
 
+    describe("Array", function () {
+        it("Push", function () {
+            let paramPointer0 = module.__retain(module.__allocString("hey"));
+            module.arrayPush(paramPointer0);
+
+            //release the memory used to store "hey"
+            module.__release(paramPointer0);
+
+            paramPointer0 = module.__retain(module.__allocString("we"));
+            module.arrayPush(paramPointer0);
+            module.__release(paramPointer0);
+
+            paramPointer0 = module.__retain(module.__allocString("did"));
+            module.arrayPush(paramPointer0);
+            module.__release(paramPointer0);
+
+            paramPointer0 = module.__retain(module.__allocString("a"));
+            module.arrayPush(paramPointer0);
+            module.__release(paramPointer0);
+
+            paramPointer0 = module.__retain(module.__allocString("contract!"));
+            module.arrayPush(paramPointer0);
+            module.__release(paramPointer0);
+        });
+
+        it("Get", function () {
+            let pointer = module.arrayGet(0);
+            let string = module.__getString(pointer);
+            module.__release(pointer);
+            assert.strictEqual(string, "hey");
+
+            pointer = module.arrayGet(2);
+            string = module.__getString(pointer);
+            module.__release(pointer); //sigh always
+
+            assert.strictEqual(string, "did");
+        });
+
+        it("Pop", function () {
+            //Pull a value off the top of the array (length-1)
+            let pointer = module.arrayPop();
+            let string = module.__getString(pointer);
+            module.__release(pointer);
+
+            assert.strictEqual(string, "contract!");
+
+            //pull another value
+            pointer = module.arrayPop();
+            string = module.__getString(pointer);
+            module.__release(pointer);
+            assert.strictEqual(string, "a");
+        });
+
+        it("Length", function () {
+            //after pop length should be 3 down from 5
+            let length = module.arrayLength();
+            assert.strictEqual(length, 3);
+
+            //pop a value off of the array to test the length works
+            let pointer = module.arrayPop();
+            let string = module.__getString(pointer);
+            module.__release(pointer);
+
+            assert.strictEqual(string, 'did');
+
+            // console.log('ARRV', module.arrayGet(4))
+            // assert.strictEqual(length, 3);
+        });
+    });
+
     describe("Set", function () {
         it("Add", function () {
             //create a pointer to the string param "a" we will pass in as the value
