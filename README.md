@@ -15,8 +15,16 @@ This repository maintains a number of examples of how to build and test WASM bin
 - [Addition](examples/c/add) - Add two numbers and return the result. Also demonstrates persistence of  contract state across calls
 - [Types](examples/c/types) - Demonstrates submitting and working with types in C + JS
 
-### AssemblyScript
+### [AssemblyScript](https://docs.assemblyscript.org/)
 
-- [Addition](examples/assemblyscript/add) - Add two numbers and return the result. Also demonstrates persistence of  contract state across calls
-- [Types](examples/assemblyscript/types) - Demonstrates submitting and working with types and return values in AssemblyScript + JS
+- [Addition](examples/assemblyscript/add) - Add two numbers and return the result from JS. Also demonstrates persistence of contract state across calls
+- [Types](examples/assemblyscript/types) - Demonstrates working with different types as params and return values calling compiled AssemblyScript WASM from JS
+  - Booleans
+  - Integers
+  - Floating Point Numbers
+  - Strings
+  - Arrays
+- [Data Structures](examples/assemblyscript/datastructures) - Demonstrates working with common data structures calling compiled AssemblyScript WASM from JS
+  - Set<type>
+  - Map (k<type> => v<type>)
 
