@@ -24,6 +24,18 @@ Test the module outside of the context of the blockchain:
 npm test
 ```
 
+This will run NodeJS based tests in the `test` directory. For example in `types.unit.spec.js` test instantiation of the compiled WASM module, and assertions to verify its API and behavior:
+
+```javascript
+describe('Integers', function () {
+        it('Mult Ints', async function () {
+            assert.strictEqual(wasm.instance.exports._mult(3, 99), 297); //Assert that the product of 3 and 99 is 297, checking strictly that the type return is equal to number
+        });
+    
+    ...
+    });
+```
+
 
 
 ## JS API
