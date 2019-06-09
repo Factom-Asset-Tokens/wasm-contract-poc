@@ -28,4 +28,5 @@ This repository maintains a number of examples of how to build and test WASM bin
   - Array<type>
   - Set<type>
   - Map (k<type> => v<type>)
+- [Host Interaction](examples/assemblyscript/host) - Demonstrates AssemblyScript code interacting with functions and constants exported by the host environment, getting the result in JS
 

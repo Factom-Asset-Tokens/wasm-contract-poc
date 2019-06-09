@@ -1,0 +1,13 @@
+{
+  "description": "Interact with the host environment in AssemblyScript(TypeScript)",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "rm -f build/host.wasm && asc host.ts --baseDir src --binaryFile ../build/host.wasm --measure --optimizeLevel 3 --shrinkLevel 2",
+    "test": "npm run build && mocha test/*"
+  },
+  "devDependencies": {
+    "assemblyscript": "AssemblyScript/assemblyscript",
+    "chai": "4.2.0",
+    "mocha": "6.1.4"
+  }
+}
