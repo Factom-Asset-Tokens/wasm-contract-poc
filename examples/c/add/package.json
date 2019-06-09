@@ -3,7 +3,7 @@
   "description": "Example to add two numbers in C WASM",
   "main": "index.js",
   "scripts": {
-    "build": "rm -f build/add.wasm && emcc src/add.c -s ONLY_MY_CODE=1 -s WASM=1 -s EXPORTED_FUNCTIONS=\"['_add', '_addRunning']\"  -o build/add.wasm",
+    "build": "rm -f build/add.wasm && emcc src/add.c -s ONLY_MY_CODE=1 -s WASM=1 -s EXPORTED_FUNCTIONS=\"['_add', '_addRunning']\" -Os  -o build/add.wasm",
     "test": "npm run build && mocha test/add.unit.spec.js"
   },
   "devDependencies": {

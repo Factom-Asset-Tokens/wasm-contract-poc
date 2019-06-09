@@ -2,7 +2,7 @@
   "description": "Add two numbers together in AssemblyScript(TypeScript)",
   "version": "0.0.0",
   "scripts": {
-    "build": "rm -f build/add.wasm && asc add.ts --baseDir src --binaryFile ../build/add.wasm --measure",
+    "build": "rm -f build/add.wasm && asc add.ts --baseDir src --binaryFile ../build/add.wasm --measure  --optimizeLevel 3 --shrinkLevel 2",
     "test": "npm run build && mocha test/add.unit.spec.js"
   },
   "devDependencies": {
