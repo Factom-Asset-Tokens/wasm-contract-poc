@@ -62,6 +62,7 @@ describe('AssemblyScript WASM: Working With Types', function () {
         it('Host Message String - Dynamic reference manipulation by host', async function () {
 
             //change the value of the message reference returned by message() in imports.host
+            //you could also change the message() function entirely if you wanted!
             message = "I'm Just Kidding";
 
             const pointer = module.getHostMessage();
@@ -70,16 +71,6 @@ describe('AssemblyScript WASM: Working With Types', function () {
 
             //even though the instance is the same, the value returned is different
             assert.strictEqual(string, "I'm Just Kidding");
-        });
-    });
-
-    describe('Module Memory Manipulation', function () {
-        it('Direct Memory Access', function () {
-
-        });
-
-        it('Copy Memory', function () {
-
         });
     });
 });

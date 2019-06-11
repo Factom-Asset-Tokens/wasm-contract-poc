@@ -9,6 +9,8 @@ const factomParams = {
 const {FactomCli, Entry, Chain} = require('factom');
 const cli = new FactomCli(factomParams);
 
+const ContractPublication = require('./ContractPublication');
+
 class Contract {
     constructor(id) {
         this._id = id;
@@ -113,16 +115,9 @@ class Contract {
         return entry.result;
     }
 
-    static async publish(contract) {
-        //Check that this is a valid WASM contract & will run
-        const wasm = await WebAssembly.instantiate(contract, util.getDefaultImports());
-
-        const entry = Entry.builder()
-            .extId(contract, 'binary') //salt the contract to make the deployment random
-            .extId(crypto.randomBytes(16).toString('hex'), 'hex') //salt the contract to make the deployment random
-            .build();
-
-        const chain = new Chain(entry);
+    static async publish(publication) {
+        if (!publication instanceof ContractPublication) throw new Error("Argument publication must be an instance of ContractPublication");
+        const chain = publication.getChain();
         await cli.add(chain, process.env.es);
         return chain.idHex;
     }

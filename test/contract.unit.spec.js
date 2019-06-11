@@ -2,6 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 const assert = require('chai').assert;
+
+const ContractPublication = require('../src/ContractPublication');
+
 describe('Contract', function () {
     this.timeout(10000);
 
@@ -12,8 +15,12 @@ describe('Contract', function () {
         //get the simple addition example contract
         const contract = fs.readFileSync(path.resolve(__dirname, '../examples/c/add/build/add.wasm'));
 
+        const publication = ContractPublication.builder(contract)
+            .func('_add', ['number'], 'number')
+            .build();
+
         //publish to Factom
-        const result = await Contract.publish(contract);
+        const result = await Contract.publish(publication);
 
         console.log('Published Contract!', result);
 
