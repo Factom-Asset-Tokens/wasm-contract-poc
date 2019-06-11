@@ -1,6 +1,8 @@
 # AssemblyScript WASM - Add Numbers
 
-This example package demonstrates compiling a simple AssemblyScript program, `add.c` which adds two numbers to WASM, executing it in a host environment, and accessing it's methods.
+This example package demonstrates compiling a simple AssemblyScript program, `add.ts` which adds two numbers to WASM, executing it in a host environment, and accessing it's methods.
+
+This package additionally demonstrates running WASM using both the [AssemblyScript loader](https://github.com/AssemblyScript/assemblyscript/tree/master/lib/loader), which provides convenience functionality and compatibility, and native [WebAssembly](https://developer.mozilla.org/en-US/docs/WebAssembly) framework.
 
 ## Project Structure
 
