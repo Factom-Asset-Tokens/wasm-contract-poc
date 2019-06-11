@@ -91,3 +91,7 @@ char * echoString() {
 
   return inStr;
 }
+
+char * echoStringParam(char *x) {
+  return x;
+}
