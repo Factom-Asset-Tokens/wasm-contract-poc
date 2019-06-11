@@ -5,6 +5,8 @@ const assert = require('chai').assert;
 
 const ContractPublication = require('../src/ContractPublication');
 
+const testContractAddress = '6064864b61046b1688e7c18441d0ab8f23ee0da39c6ec049dcd865b1ab586ad5';
+
 describe('Contract', function () {
     this.timeout(10000);
 
@@ -17,6 +19,7 @@ describe('Contract', function () {
 
         const publication = ContractPublication.builder(contract)
             .func('_add', ['number'], 'number')
+            .func('_addRunning', ['number'], 'number')
             .build();
 
         //publish to Factom
@@ -29,7 +32,7 @@ describe('Contract', function () {
 
     let contract;
     it('Load A Contract', async function () {
-        contract = new Contract('56024e237fea9c145a8ddc438bc33eb0131173f8e7cabf8b8947992fe7acff5d');
+        contract = new Contract(testContractAddress);
         await contract.init();
 
         console.log('Loaded add.wasm contract!');
@@ -55,7 +58,7 @@ describe('Contract', function () {
     });
 
     it('Get Result Of Call', async function () {
-        const result = await contract.getResult('6222d9e9774823164ef74a1f09708af96ffc98e607750267cdac1676ef7cb25b');
-        assert.strictEqual(result, 11);
+        const result = await contract.getResult('17be7c62bb3be740a16c8bc7487d7feb84308834ea5ce971f7fefe2f769437da');
+        assert.strictEqual(result, 5);
     });
 });

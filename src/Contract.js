@@ -6,7 +6,7 @@ const factomParams = {
     port: process.env.port
 };
 
-const {FactomCli, Entry, Chain} = require('factom');
+const {FactomCli, Entry} = require('factom');
 const cli = new FactomCli(factomParams);
 
 const ContractPublication = require('./ContractPublication');
@@ -16,12 +16,15 @@ class Contract {
         this._id = id;
         this._entries = new Map();
         this._init = false;
+
+        //stats
+        this.entryErrors = 0;
     }
 
     async init() {
         if (this._init) return;
         let entries = await cli.getAllEntriesOfChain(this._id);
-        const first = entries.shift();
+        let first = entries.shift();
         entries = entries.map((entry) => {
             try {
                 return Object.assign({entryhash: entry.hashHex()}, JSON.parse(entry.content.toString()));
@@ -31,10 +34,16 @@ class Contract {
         });
         entries = entries.filter((entry) => entry !== undefined);
 
-        if (!first.extIds[0]) throw new Error('Contract extId not found');
-
         //load the WASM contract from the first entry's contract chain ID
+        if (!first.extIds[0]) throw new Error('Contract extId not found');
         this._contract = Buffer.from(first.extIds[0], 'binary');
+
+        //validate publication entry
+        const publication = JSON.parse(first.content.toString());
+        this.abi = publication.abi;
+        //validate publication
+        //
+        //
 
         //load the contract buffer into the WASM environment
         const imports = util.getDefaultImports();
@@ -50,15 +59,29 @@ class Contract {
             const args = entry.args;
 
             try {
+                //evaluate ABI
+
+                //check func is allowed by ABI
+                if (!self.abi[func]) throw new Error('Attempted to call function not specified in ABI ' + func);
+
+                const abiFunc = self.abi[func];
+
+                //evaluate args against args & types allowed by func
+                for (let i = 0; i < args.length; i++) {
+                    if (!abiFunc.args[i]) throw new Error('Unexpected arg at index ' + i + ': ' + func + ' accepts ' + abiFunc.args.length + ' arguments');
+                    if (typeof args[i] !== abiFunc.args[i]) throw new Error('Arg at index ' + i + ': ' + func + ' accepts a ' + abiFunc.args[i]);
+                }
+
                 const result = self._wasm.instance.exports[func](...args);
 
                 //store result and valid function call in memory for later
                 self._entries.set(entry.entryhash, Object.assign(entry, {result}));
             } catch (e) {
                 console.error("WASM Entry Error:", e.message);
+                self.entryErrors++;
             }
         });
-        console.log("Loaded", entries.length, "State Changes")
+        console.log("Loaded", entries.length, "State Changes");
 
         this._init = true;
     }
