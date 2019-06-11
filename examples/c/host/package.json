@@ -1,0 +1,17 @@
+{
+  "version": "0.0.0",
+  "description": "Example to interact with the host and imported functions from C WASM",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -f build/host.wasm && emcc src/host.c -s ONLY_MY_CODE=1 -s WASM=1 -s EXPORTED_FUNCTIONS=\"['_echoHostInt', '_echoHostString']\" -s ERROR_ON_UNDEFINED_SYMBOLS=0  -o build/host.wasm",
+    "test": "npm run build && mocha test/*"
+  },
+  "dependencies": {
+    "walloc": "0.1.0"
+  },
+  "devDependencies": {
+    "chai": "4.2.0",
+    "mocha": "6.1.4"
+  },
+  "license": "MIT"
+}

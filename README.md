@@ -13,7 +13,12 @@ This repository maintains a number of examples of how to build and test WASM bin
 ### C
 
 - [Addition](examples/c/add) - Add two numbers and return the result. Also demonstrates persistence of  contract state across calls
-- [Types](examples/c/types) - Demonstrates submitting and working with types in C + JS
+- [Types](examples/c/types) - Demonstrates working with different types as params and return values calling compiled C WASM from JS
+  - Booleans
+  - Integers
+  - Floating Point Numbers
+  - Strings
+- [Host Interaction](examples/c/host) - Demonstrates C code calling functions exported by the host environment, getting the result from the perspective of C code in JS. Also demonstrates the host returning dynamic values from imported functions.
 
 ### [AssemblyScript](https://docs.assemblyscript.org/)
 
@@ -28,5 +33,5 @@ This repository maintains a number of examples of how to build and test WASM bin
   - Array\<type\>
   - Set\<type\>
   - Map (k\<type\> => v\<type\>)
-- [Host Interaction](examples/assemblyscript/host) - Demonstrates AssemblyScript code interacting with functions and constants exported by the host environment, getting the result in JS. Also demonstrates the host accessing and manipulating memory in the WASM module.
+- [Host Interaction](examples/assemblyscript/host) - Demonstrates AssemblyScript code interacting with functions and constants exported by the host environment, getting the result in JS. Also demonstrates the host returning dynamic values from imported functions.
 
