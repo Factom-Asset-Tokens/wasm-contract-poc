@@ -146,16 +146,21 @@ describe('C WASM: Use Types from JS', function () {
             writeString(wasm.imports.env.memory, stringParam, paramPointer);
 
             //call the module, passing in the pointer to our string param in it's memory
-            //get the pointer in memory returned from the call
+            //getting the pointer in memory returned from the call
             const pointer = wasm.instance.exports._echoStringParam(paramPointer);
 
-            //read off the memory belonging to that pointer encoded to UTF-8
+            //read off the memory at the result pointer
             const string = readString(memory, pointer);
+
+            //free the memory from writing in the param
+            walloc.free(paramPointer);
+
+            //in this case we don't call free on our result, as it's the same
+            //pointer we passed in
 
             //check the string has been returned un-mutated
             assert.strictEqual(string, stringParam);
         });
-
     });
 });
 
