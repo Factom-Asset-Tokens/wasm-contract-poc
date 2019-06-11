@@ -1,3 +1,8 @@
+#include <stdlib.h>
+#include <string.h>
+#include <emscripten.h>
+
+
 /*
 
 Integers
@@ -28,9 +33,8 @@ double getTenPointZeroOne(){
   return 10.01;
 }
 
-double addFloats(double *x){
-//return x;
-return 0.01;
+float addFloats(float x, float y){
+return x + y;
 }
 
 /*
@@ -65,11 +69,25 @@ Strings
 
 */
 
+
+//define a place in memory for string input from the host program
+char inStr[20];
+
+//get the offset in memory of the start of the string input pointer
+char* getInStrOffset () {
+  return &inStr[0];
+}
+
+
 char * getString() {
   return "It's Alive!!!";
 }
 
-char * echoString(char *x) {
-  x[0]='a';
-  return x;
+char * echoString() {
+  //inStr contains our parameter
+  inStr[0]='a';
+
+  char str[] = "Your String Was: ";
+
+  return inStr;
 }

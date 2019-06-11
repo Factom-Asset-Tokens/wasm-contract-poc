@@ -39,7 +39,9 @@ describe('C WASM: Use Types from JS', function () {
         });
 
         it('Add Floats', async function () {
-            // assert.strictEqual(wasm.instance.exports._addFloats(0.1,101), 101.1);
+            const value = wasm.instance.exports._addFloats(0.1, 101);
+            console.log("ADD", value);
+            // assert.strictEqual(, 101.1);
         });
     });
 
@@ -103,23 +105,36 @@ describe('C WASM: Use Types from JS', function () {
             //get a handle on the WASM module's memory
             memory = new Uint8Array(wasm.imports.env.memory.buffer);
 
+
+            const offset = wasm.instance.exports._getInStrOffset();
+
+            writeString(wasm.imports.env.memory, "Unique", offset);
+
             //get the pointer in memory resulting from the call (int)
-            const pointer = wasm.instance.exports._echoString("ppp");
+            const pointer = wasm.instance.exports._echoString();
 
             //read off the memory belonging to that pointer encoded to UTF-8
             const string = getUTF8String(memory, pointer);
 
-            console.log('PTR:', pointer, 'Got', string);
-
-            assert.isString(string);
+            assert.strictEqual(string, 'anique');
         });
     });
 });
 
+function writeString(mem, str, offset) {
+    const strBuf = Buffer.from(str);
+    const outBuf = new Uint8Array(mem.buffer, offset, strBuf.length);
+    for (let i = 0; i < strBuf.length; i++) {
+        outBuf[i] = strBuf[i];
+    }
+}
+
 function getUTF8String(mem, ptr) {
     let s = "";
     for (let i = ptr; mem[i]; i++) {
-        s += String.fromCharCode(mem[i]);
+        const str = String.fromCharCode(mem[i]);
+        // console.log(str);
+        s += str;
     }
     return s;
 }

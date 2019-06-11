@@ -25,8 +25,8 @@ This repository maintains a number of examples of how to build and test WASM bin
   - Strings
   - Arrays
 - [Data Structures](examples/assemblyscript/datastructures) - Demonstrates working with common high level data structures in AS and calling compiled AssemblyScript WASM from JS
-  - Array<type>
-  - Set<type>
-  - Map (k<type> => v<type>)
-- [Host Interaction](examples/assemblyscript/host) - Demonstrates AssemblyScript code interacting with functions and constants exported by the host environment, getting the result in JS
+  - Array\<type\>
+  - Set\<type\>
+  - Map (k\<type\> => v\<type\>)
+- [Host Interaction](examples/assemblyscript/host) - Demonstrates AssemblyScript code interacting with functions and constants exported by the host environment, getting the result in JS. Also demonstrates the host accessing and manipulating memory in the WASM module.
 

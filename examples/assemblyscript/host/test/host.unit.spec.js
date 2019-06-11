@@ -9,7 +9,7 @@ const loader = require("assemblyscript/lib/loader");
 describe('AssemblyScript WASM: Working With Types', function () {
 
     let module;
-    let temp;
+    let message = "I'm An Alien";
     it('Instantiate WASM File', async function () {
         const imports = util.getDefaultImports();
 
@@ -27,7 +27,7 @@ describe('AssemblyScript WASM: Working With Types', function () {
             //return a string message from the host
             message() {
                 //we must allocate a pointer in memory for the string result
-                const pointer = module.__retain(module.__allocString("I'm An Alien"));
+                const pointer = module.__retain(module.__allocString(message));
                 return pointer;
             },
         };
@@ -57,6 +57,29 @@ describe('AssemblyScript WASM: Working With Types', function () {
             module.__release(pointer);
 
             assert.strictEqual(string, "I'm An Alien");
+        });
+
+        it('Host Message String - Dynamic reference manipulation by host', async function () {
+
+            //change the value of the message reference returned by message() in imports.host
+            message = "I'm Just Kidding";
+
+            const pointer = module.getHostMessage();
+            const string = module.__getString(pointer);
+            module.__release(pointer);
+
+            //even though the instance is the same, the value returned is different
+            assert.strictEqual(string, "I'm Just Kidding");
+        });
+    });
+
+    describe('Module Memory Manipulation', function () {
+        it('Direct Memory Access', function () {
+
+        });
+
+        it('Copy Memory', function () {
+
         });
     });
 });
