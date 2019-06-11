@@ -8,6 +8,7 @@ const factomParams = {
 
 const {FactomCli, Entry} = require('factom');
 const cli = new FactomCli(factomParams);
+const Walloc = require('walloc');
 
 const ContractPublication = require('./ContractPublication');
 
@@ -45,8 +46,18 @@ class Contract {
         //
         //
 
+
         //load the contract buffer into the WASM environment
         const imports = util.getDefaultImports();
+
+        //set up walloc - an way to help us allocate memory for complex params like strings & arrays
+        this.walloc = new Walloc({
+            memory: imports.env.memory,
+            getTotalMemory() {
+                return imports.env.memory.buffer.byteLength;
+            }
+        });
+
         this._wasm = await WebAssembly.instantiate(this._contract, imports);
 
         //inject imports into the WASM object
@@ -66,15 +77,45 @@ class Contract {
 
                 const abiFunc = self.abi[func];
 
+                //create a set for allocated param memory pointers(strings, arrays)
+                //use a set because we don't want to free a pointer twice
+                const pointers = new Set(); //set up a holder for pointers we create for params
+
                 //evaluate args against args & types allowed by func
+                //under-filling args is currently supported, e.x. calling fn(a,b,c) with just fin(a,b) is allowed
                 for (let i = 0; i < args.length; i++) {
                     if (!abiFunc.args[i]) throw new Error('Unexpected arg at index ' + i + ': ' + func + ' accepts ' + abiFunc.args.length + ' arguments');
                     if (typeof args[i] !== abiFunc.args[i]) throw new Error('Arg at index ' + i + ': ' + func + ' accepts a ' + abiFunc.args[i]);
+
+                    //if we get a string param we need to allocate some memory
+                    if (typeof args[i] === 'string') {
+                        //allocate a pointer for the string
+                        const pointer = self.walloc.malloc(args[i].length);
+
+                        //write the string into memory at the pointer
+                        util.writeString(imports.env.memory, args[i], pointer);
+
+                        //add the pointer to the pointer set
+                        pointers.add(pointers);
+
+                        //replace the argument with it's pointer representation before it's passed in
+                        args[i] = pointers;
+                    }
                 }
 
-                const result = self._wasm.instance.exports[func](...args);
+                //call the function and get the resulting int, float, or pointer
+                let result = self._wasm.instance.exports[func](...args);
 
-                //store result and valid function call in memory for later
+                //if the result of the function is of type string get the value from the pointer that was returned
+                if (abiFunc.returns === 'string') {
+                    pointers.add(result); //push the result pointer
+                    result = util.readString(imports.env.memory, result);
+                }
+
+                //free up all our param pointers after getting the result
+                pointers.forEach((pointer) => self.walloc.free(pointer));
+
+                //store result and the valid function call in memory for later
                 self._entries.set(entry.entryhash, Object.assign(entry, {result}));
             } catch (e) {
                 console.error("WASM Entry Error:", e.message);
