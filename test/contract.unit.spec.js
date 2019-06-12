@@ -12,7 +12,7 @@ describe('Contract Spec', function () {
 
     const Contract = require('../src/Contract');
 
-    it('Publish A Contract', async function () {
+    /*it('Publish A Contract', async function () {
 
         //get the simple addition example contract
         const contract = fs.readFileSync(path.resolve(__dirname, '../examples/c/add/build/add.wasm'));
@@ -28,7 +28,7 @@ describe('Contract Spec', function () {
         console.log('Published Contract!', result);
 
         assert.isString(result);
-    });
+    });*/
 
     let contract;
     it('Load A Contract', async function () {
@@ -59,38 +59,55 @@ describe('Contract Spec', function () {
         const result = await contract.getResult('a0dbead86874532ef4fc150ae4dd2590b7ed85541e50369225305bf3e7846d18');
         assert.strictEqual(result, 13);
     });
+});
 
+describe('Types Contract', function () {
+    it('Publish Types Contract', async function () {
 
-    describe('Types Contract', function () {
-        it('Publish Types Contract', async function () {
+        //get the simple addition example contract
+        const contract = fs.readFileSync(path.resolve(__dirname, '../examples/c/types/build/types.wasm'));
 
-            //get the simple addition example contract
-            const contract = fs.readFileSync(path.resolve(__dirname, '../examples/c/types/build/types.wasm'));
+        const publication = ContractPublication.builder(contract)
+            .func('_negate', ['boolean'], 'boolean')
+            .func('_or', ['boolean', 'boolean'], 'boolean')
+            .func('_echoStringParam', ['string'], 'string')
+            .build();
 
-            const publication = ContractPublication.builder(contract)
-                .func('_echoStringParam', ['string'], 'string')
-                .build();
+        //publish to Factom
+        const result = await Contract.publish(publication);
 
-            //publish to Factom
-            const result = await Contract.publish(publication);
+        console.log('Published Types Contract!', result);
 
-            console.log('Published Contract!', result);
+        assert.isString(result);
+    });
 
-            assert.isString(result);
-        });
+    let contract;
+    it('Load Types Contract', async function () {
+        contract = new Contract('ead7b8ea8e8dced26cd6a7be50c7d832c93443a571d1fc61f3df677109c33088');
+        await contract.init();
 
-        let contract;
-        it('Load Types Contract', async function () {
-            contract = new Contract('f7b4184a2749d826740daa3459d87c1e07c911008baf986dcb30540a1ce1ed14');
-            await contract.init();
+        console.log('Loaded types.wasm contract!');
+    });
 
-            console.log('Loaded types.wasm contract!');
-        });
+    it('Call Contract Function - Negate Boolean', async function () {
+        const result = await contract.call('_negate', [false]);
 
-        it('Call Contract Function - Echo String Param', async function () {
-            const result = await contract.call('_echoStringParam', ["I'm Alive!"]);
+        assert.strictEqual(result.result, true);
+    });
 
-            assert.strictEqual(result.result, "I'm Alive!");
-        });
+    it('Call Contract Function - Or Boolean', async function () {
+        let result = await contract.call('_or', [true, false]);
+        assert.isTrue(result.result);
+
+        result = await contract.call('_or', [false, true]);
+        assert.isTrue(result.result);
+
+        result = await contract.call('_or', [false, false]);
+        assert.isFalse(result.result);
+    });
+
+    it('Call Contract Function - Echo String Param', async function () {
+        const result = await contract.call('_echoStringParam', ["I'm Alive!"]);
+        assert.strictEqual(result.result, "I'm Alive!");
     });
 });

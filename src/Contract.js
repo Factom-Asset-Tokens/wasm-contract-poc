@@ -166,7 +166,7 @@ function applyCall(wasm, abi, func, args) {
         //check func is declared by ABI
 
         const abiFunc = abi[func];
-        if (!abiFunc) throw new Error('Attempted to call function not specified in ABI ' + func);
+        if (!abiFunc) throw new Error('Attempted to call function not specified in ABI: ' + func);
 
         //create a set for allocated param memory pointers(strings, arrays)
         //use a set because we don't want to free a pointer twice
@@ -201,6 +201,8 @@ function applyCall(wasm, abi, func, args) {
         if (abiFunc.returns === 'string') {
             pointers.add(result); //push the result pointer
             result = util.readString(new Uint8Array(wasm.imports.env.memory.buffer), result);
+        } else if (abiFunc.returns === 'boolean') {
+            result = Boolean(result).valueOf();
         }
 
         //free up all our param & result pointers after getting the end result
