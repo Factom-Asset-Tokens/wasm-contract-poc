@@ -3,6 +3,7 @@ const path = require('path');
 
 const assert = require('chai').assert;
 
+const Contract = require('../src/Contract');
 const ContractPublication = require('../src/ContractPublication');
 
 const testContractAddress = '898b44ab3c6cb365b7d3b6af32c4b68817a2d0eca39adf53c9e7b7df3017d25b';
@@ -10,7 +11,6 @@ const testContractAddress = '898b44ab3c6cb365b7d3b6af32c4b68817a2d0eca39adf53c9e
 describe('Contract Spec', function () {
     this.timeout(10000);
 
-    const Contract = require('../src/Contract');
 
     /*it('Publish A Contract', async function () {
 
@@ -62,6 +62,8 @@ describe('Contract Spec', function () {
 });
 
 describe('Types Contract', function () {
+    this.timeout(10000);
+
     it('Publish Types Contract', async function () {
 
         //get the simple addition example contract

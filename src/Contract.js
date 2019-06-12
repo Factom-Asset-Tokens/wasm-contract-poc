@@ -9,6 +9,7 @@ const factomParams = {
 const {FactomCli, Entry} = require('factom');
 const cli = new FactomCli(factomParams);
 const Walloc = require('walloc');
+const metering = require('wasm-metering');
 
 const ContractPublication = require('./ContractPublication');
 
@@ -41,14 +42,30 @@ class Contract {
 
         //validate publication entry
         const publication = JSON.parse(first.content.toString());
+
+        //validate publication JSON
+        //
+        //
+
         this.abi = publication.abi;
-        //validate publication
-        //
-        //
 
 
         //load the contract buffer into the WASM environment
         const imports = util.getDefaultImports();
+
+        //setup test gas function
+        let gasUsed = 0;
+        const gasLimit = 99999999;
+
+        imports.metering = {
+            usegas: (gas) => {
+                gasUsed += gas;
+                console.log('GAS-', gasUsed);
+                if (gasUsed > gasLimit) {
+                    throw new Error('out of gas!')
+                }
+            }
+        };
 
         //set up walloc - an way to help us allocate memory for complex params like strings & arrays
         const walloc = new Walloc({
@@ -58,7 +75,12 @@ class Contract {
             }
         });
 
-        this._wasm = await WebAssembly.instantiate(this._contract, imports);
+        //inject metering into binary
+        const meteredWasm = metering.meterWASM(this._contract, {
+            meterType: 'i32'
+        });
+
+        this._wasm = await WebAssembly.instantiate(meteredWasm, imports);
 
         //inject walloc into the WASM object
         this._wasm.walloc = walloc;
@@ -89,7 +111,26 @@ class Contract {
     async getWASM() {
         const imports = util.getDefaultImports();
 
-        const wasm = await WebAssembly.instantiate(this._contract, imports);
+        //setup test gas function
+        let gasUsed = 0;
+        const gasLimit = 99999999;
+
+        imports.metering = {
+            usegas: (gas) => {
+                gasUsed += gas;
+                console.log('GAS-', gasUsed);
+                if (gasUsed > gasLimit) {
+                    throw new Error('Out of Gas!')
+                }
+            }
+        };
+
+        //inject metering into binary
+        const meteredWasm = metering.meterWASM(this._contract, {
+            meterType: 'i32'
+        });
+
+        const wasm = await WebAssembly.instantiate(meteredWasm, imports);
 
         //inject imports
         wasm.imports = imports;
