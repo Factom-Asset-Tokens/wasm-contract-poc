@@ -76,7 +76,6 @@ class Contract {
                 //store result and the valid function call in memory for later
                 self._entries.set(entry.entryhash, result);
             } catch (e) {
-                console.error(e);
                 self.entryErrors++;
             }
         });
@@ -90,13 +89,10 @@ class Contract {
     async getWASM() {
         const imports = util.getDefaultImports();
 
-        //set up walloc
-        const walloc = new Walloc({
-            memory: imports.env.memory,
-            getTotalMemory() {
-                return imports.env.memory.buffer.byteLength;
-            }
-        });
+        const wasm = await WebAssembly.instantiate(this._contract, imports);
+
+        //inject imports
+        wasm.imports = imports;
 
         //copy memory (state) between current and copy instance
         const newMem = new Uint32Array(imports.env.memory.buffer);
@@ -105,15 +101,14 @@ class Contract {
             newMem[i] = oldMem[i];
         }
 
-        //set up walloc
+        //set up & inject walloc
+        wasm.walloc = new Walloc({
+            memory: imports.env.memory,
+            getTotalMemory() {
+                return imports.env.memory.buffer.byteLength;
+            }
+        });
 
-        const wasm = await WebAssembly.instantiate(this._contract, imports);
-
-        //inject walloc
-        wasm.walloc = walloc;
-
-        //inject imports
-        wasm.imports = imports;
         return wasm;
     }
 
@@ -169,9 +164,9 @@ function applyCall(wasm, abi, func, args) {
         //evaluate ABI
 
         //check func is declared by ABI
-        if (!abi[func]) throw new Error('Attempted to call function not specified in ABI ' + func);
 
         const abiFunc = abi[func];
+        if (!abiFunc) throw new Error('Attempted to call function not specified in ABI ' + func);
 
         //create a set for allocated param memory pointers(strings, arrays)
         //use a set because we don't want to free a pointer twice
@@ -181,7 +176,7 @@ function applyCall(wasm, abi, func, args) {
         //under-filling args is currently supported, e.x. calling fn(a,b,c) with just fin(a,b) is allowed
         for (let i = 0; i < args.length; i++) {
             if (!abiFunc.args[i]) throw new Error('Unexpected arg at index ' + i + ': ' + func + ' accepts ' + abiFunc.args.length + ' arguments');
-            if (typeof args[i] !== abiFunc.args[i]) throw new Error('Arg at index ' + i + ': ' + func + ' accepts a ' + abiFunc.args[i]);
+            if (typeof args[i] !== abiFunc.args[i]) throw new Error('Arg at index ' + i + ': ' + func + ' accepts a ' + abiFunc.args[i] + ' not ' + args[i]);
 
             //if we get a string param we need to allocate some memory
             if (typeof args[i] === 'string') {
@@ -195,7 +190,7 @@ function applyCall(wasm, abi, func, args) {
                 pointers.add(pointers);
 
                 //replace the argument with it's pointer representation before it's passed in
-                args[i] = pointers;
+                args[i] = pointer;
             }
         }
 
@@ -205,10 +200,10 @@ function applyCall(wasm, abi, func, args) {
         //if the result of the function is of type string get the value from the pointer that was returned
         if (abiFunc.returns === 'string') {
             pointers.add(result); //push the result pointer
-            result = util.readString(wasm.imports.env.memory, result);
+            result = util.readString(new Uint8Array(wasm.imports.env.memory.buffer), result);
         }
 
-        //free up all our param pointers after getting the result
+        //free up all our param & result pointers after getting the end result
         pointers.forEach((pointer) => wasm.walloc.free(pointer));
 
         //if the function was void return type, classify it as such
@@ -222,7 +217,6 @@ function applyCall(wasm, abi, func, args) {
 
 //holder class for undefined return type
 class Void {
-
 }
 
 module.exports = Contract;

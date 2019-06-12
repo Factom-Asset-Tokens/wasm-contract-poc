@@ -7,7 +7,7 @@ const ContractPublication = require('../src/ContractPublication');
 
 const testContractAddress = '898b44ab3c6cb365b7d3b6af32c4b68817a2d0eca39adf53c9e7b7df3017d25b';
 
-describe('Contract', function () {
+describe('Contract Spec', function () {
     this.timeout(10000);
 
     const Contract = require('../src/Contract');
@@ -58,5 +58,39 @@ describe('Contract', function () {
     it('Get Result Of Call', async function () {
         const result = await contract.getResult('a0dbead86874532ef4fc150ae4dd2590b7ed85541e50369225305bf3e7846d18');
         assert.strictEqual(result, 13);
+    });
+
+
+    describe('Types Contract', function () {
+        it('Publish Types Contract', async function () {
+
+            //get the simple addition example contract
+            const contract = fs.readFileSync(path.resolve(__dirname, '../examples/c/types/build/types.wasm'));
+
+            const publication = ContractPublication.builder(contract)
+                .func('_echoStringParam', ['string'], 'string')
+                .build();
+
+            //publish to Factom
+            const result = await Contract.publish(publication);
+
+            console.log('Published Contract!', result);
+
+            assert.isString(result);
+        });
+
+        let contract;
+        it('Load Types Contract', async function () {
+            contract = new Contract('f7b4184a2749d826740daa3459d87c1e07c911008baf986dcb30540a1ce1ed14');
+            await contract.init();
+
+            console.log('Loaded types.wasm contract!');
+        });
+
+        it('Call Contract Function - Echo String Param', async function () {
+            const result = await contract.call('_echoStringParam', ["I'm Alive!"]);
+
+            assert.strictEqual(result.result, "I'm Alive!");
+        });
     });
 });
