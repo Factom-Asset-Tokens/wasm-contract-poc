@@ -51,7 +51,7 @@ class Contract {
         const imports = util.getDefaultImports();
 
         //set up walloc - an way to help us allocate memory for complex params like strings & arrays
-        this.walloc = new Walloc({
+        const walloc = new Walloc({
             memory: imports.env.memory,
             getTotalMemory() {
                 return imports.env.memory.buffer.byteLength;
@@ -60,65 +60,23 @@ class Contract {
 
         this._wasm = await WebAssembly.instantiate(this._contract, imports);
 
+        //inject walloc into the WASM object
+        this._wasm.walloc = walloc;
+
         //inject imports into the WASM object
         this._wasm.imports = imports;
 
         //apply the state changes in order from the entries
         const self = this;
         entries.forEach(function (entry) {
-            const func = entry.func;
-            const args = entry.args;
-
             try {
-                //evaluate ABI
-
-                //check func is allowed by ABI
-                if (!self.abi[func]) throw new Error('Attempted to call function not specified in ABI ' + func);
-
-                const abiFunc = self.abi[func];
-
-                //create a set for allocated param memory pointers(strings, arrays)
-                //use a set because we don't want to free a pointer twice
-                const pointers = new Set(); //set up a holder for pointers we create for params
-
-                //evaluate args against args & types allowed by func
-                //under-filling args is currently supported, e.x. calling fn(a,b,c) with just fin(a,b) is allowed
-                for (let i = 0; i < args.length; i++) {
-                    if (!abiFunc.args[i]) throw new Error('Unexpected arg at index ' + i + ': ' + func + ' accepts ' + abiFunc.args.length + ' arguments');
-                    if (typeof args[i] !== abiFunc.args[i]) throw new Error('Arg at index ' + i + ': ' + func + ' accepts a ' + abiFunc.args[i]);
-
-                    //if we get a string param we need to allocate some memory
-                    if (typeof args[i] === 'string') {
-                        //allocate a pointer for the string
-                        const pointer = self.walloc.malloc(args[i].length);
-
-                        //write the string into memory at the pointer
-                        util.writeString(imports.env.memory, args[i], pointer);
-
-                        //add the pointer to the pointer set
-                        pointers.add(pointers);
-
-                        //replace the argument with it's pointer representation before it's passed in
-                        args[i] = pointers;
-                    }
-                }
-
-                //call the function and get the resulting int, float, or pointer
-                let result = self._wasm.instance.exports[func](...args);
-
-                //if the result of the function is of type string get the value from the pointer that was returned
-                if (abiFunc.returns === 'string') {
-                    pointers.add(result); //push the result pointer
-                    result = util.readString(imports.env.memory, result);
-                }
-
-                //free up all our param pointers after getting the result
-                pointers.forEach((pointer) => self.walloc.free(pointer));
+                //get the result object of executing the entry
+                const result = applyCall(self._wasm, self.abi, entry.func, entry.args);
 
                 //store result and the valid function call in memory for later
-                self._entries.set(entry.entryhash, Object.assign(entry, {result}));
+                self._entries.set(entry.entryhash, result);
             } catch (e) {
-                console.error("WASM Entry Error:", e.message);
+                console.error(e);
                 self.entryErrors++;
             }
         });
@@ -132,6 +90,14 @@ class Contract {
     async getWASM() {
         const imports = util.getDefaultImports();
 
+        //set up walloc
+        const walloc = new Walloc({
+            memory: imports.env.memory,
+            getTotalMemory() {
+                return imports.env.memory.buffer.byteLength;
+            }
+        });
+
         //copy memory (state) between current and copy instance
         const newMem = new Uint32Array(imports.env.memory.buffer);
         const oldMem = new Uint32Array(this._wasm.imports.env.memory.buffer);
@@ -139,7 +105,14 @@ class Contract {
             newMem[i] = oldMem[i];
         }
 
+        //set up walloc
+
         const wasm = await WebAssembly.instantiate(this._contract, imports);
+
+        //inject walloc
+        wasm.walloc = walloc;
+
+        //inject imports
         wasm.imports = imports;
         return wasm;
     }
@@ -149,7 +122,9 @@ class Contract {
 
         //attempt to make the call on a copy of the contract and return the result
         const wasm = await this.getWASM();
-        const result = wasm.instance.exports[func](...args);
+
+        //attempt to execute the call
+        const result = applyCall(wasm, this.abi, func, args);
 
         //check if there was a state change in memory resulting from the call
         const delta = !util.bufferEqual(wasm.imports.env.memory.buffer, this._wasm.imports.env.memory.buffer);
@@ -174,9 +149,11 @@ class Contract {
     async getResult(entryhash) {
         await this.init();
 
-        const entry = this._entries.get(entryhash);
-        if (!entry) throw new Error("Entry not found in result set for contract ", this._id);
-        return entry.result;
+        const result = this._entries.get(entryhash);
+
+        if (result === undefined) throw new Error("Entry not found in result set for contract " + this._id);
+
+        return result;
     }
 
     static async publish(publication) {
@@ -185,6 +162,67 @@ class Contract {
         await cli.add(chain, process.env.es);
         return chain.idHex;
     }
+}
+
+function applyCall(wasm, abi, func, args) {
+    try {
+        //evaluate ABI
+
+        //check func is declared by ABI
+        if (!abi[func]) throw new Error('Attempted to call function not specified in ABI ' + func);
+
+        const abiFunc = abi[func];
+
+        //create a set for allocated param memory pointers(strings, arrays)
+        //use a set because we don't want to free a pointer twice
+        const pointers = new Set(); //set up a holder for pointers we create for params
+
+        //evaluate args against args & types allowed by func
+        //under-filling args is currently supported, e.x. calling fn(a,b,c) with just fin(a,b) is allowed
+        for (let i = 0; i < args.length; i++) {
+            if (!abiFunc.args[i]) throw new Error('Unexpected arg at index ' + i + ': ' + func + ' accepts ' + abiFunc.args.length + ' arguments');
+            if (typeof args[i] !== abiFunc.args[i]) throw new Error('Arg at index ' + i + ': ' + func + ' accepts a ' + abiFunc.args[i]);
+
+            //if we get a string param we need to allocate some memory
+            if (typeof args[i] === 'string') {
+                //allocate a pointer for the string
+                const pointer = wasm.walloc.malloc(args[i].length);
+
+                //write the string into memory at the pointer
+                util.writeString(wasm.imports.env.memory, args[i], pointer);
+
+                //add the pointer to the pointer set
+                pointers.add(pointers);
+
+                //replace the argument with it's pointer representation before it's passed in
+                args[i] = pointers;
+            }
+        }
+
+        //call the function and get the resulting int, float, or pointer
+        let result = wasm.instance.exports[func](...args);
+
+        //if the result of the function is of type string get the value from the pointer that was returned
+        if (abiFunc.returns === 'string') {
+            pointers.add(result); //push the result pointer
+            result = util.readString(wasm.imports.env.memory, result);
+        }
+
+        //free up all our param pointers after getting the result
+        pointers.forEach((pointer) => wasm.walloc.free(pointer));
+
+        //if the function was void return type, classify it as such
+        if (result === undefined) result = new Void();
+
+        return result;
+    } catch (e) {
+        throw new Error("WASM Call Error:" + e.message);
+    }
+}
+
+//holder class for undefined return type
+class Void {
+
 }
 
 module.exports = Contract;

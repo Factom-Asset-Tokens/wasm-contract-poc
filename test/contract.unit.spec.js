@@ -5,7 +5,7 @@ const assert = require('chai').assert;
 
 const ContractPublication = require('../src/ContractPublication');
 
-const testContractAddress = '6064864b61046b1688e7c18441d0ab8f23ee0da39c6ec049dcd865b1ab586ad5';
+const testContractAddress = '898b44ab3c6cb365b7d3b6af32c4b68817a2d0eca39adf53c9e7b7df3017d25b';
 
 describe('Contract', function () {
     this.timeout(10000);
@@ -18,7 +18,7 @@ describe('Contract', function () {
         const contract = fs.readFileSync(path.resolve(__dirname, '../examples/c/add/build/add.wasm'));
 
         const publication = ContractPublication.builder(contract)
-            .func('_add', ['number'], 'number')
+            .func('_add', ['number', 'number'], 'number')
             .func('_addRunning', ['number'], 'number')
             .build();
 
@@ -51,14 +51,12 @@ describe('Contract', function () {
     });
 
     it('Call Contract Function - Write', async function () {
-        const call = await contract.call('_addRunning', [1]);
+        const call = await contract.call('_addRunning', [3]);
         assert.isNumber(call.result);
-
-        console.log(call)
     });
 
     it('Get Result Of Call', async function () {
-        const result = await contract.getResult('17be7c62bb3be740a16c8bc7487d7feb84308834ea5ce971f7fefe2f769437da');
-        assert.strictEqual(result, 5);
+        const result = await contract.getResult('a0dbead86874532ef4fc150ae4dd2590b7ed85541e50369225305bf3e7846d18');
+        assert.strictEqual(result, 13);
     });
 });
