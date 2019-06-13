@@ -50,20 +50,20 @@ console.log(result); // => "898b44ab3c6cb365b7d3b6af32c4b68817a2d0eca39adf53c9e7
 
 ### Application Binary Interface
 
-The ABI is a datastructure that defines how the higher level smart contract application interfaces with the low level binary WASM code. At it's heart a WASM VM is a very low level machine which needs help understanding how to interpret more complex types like strings from the host environment.
+The ABI is a datastructure that defines how the higher level smart contract platform interfaces with the low level binary WASM code. At it's heart a WASM VM is a very low level machine which needs help understanding how to interpret more complex types like strings from the host environment, and vice versa.
 
-ABI's in this system are simple, defining only the function name, argument types and return type. For example, defining a function exposed by our WASM called "_add" that takes in two number arguments and returns a boolean using ContractPublication:
+ABI's in this system are simple, defining only the function name, argument types and return type. For example, defining a function exposed by our WASM called "_add" that takes in two number arguments and returns a boolean using ContractPublication.builder():
 
 ```javascript
 const publication = ContractPublication.builder(contract)
-            .func('_add', ['number'], 'number') // function, arguments, return type,
+            .func('_add', ['number'], 'number') // function name, argument types, return type,
             .build();
 ```
 
 Some more examples:
 
 ```json
-//a function with multiple arguments with different
+//a function with multiple arguments with different types
 const publication = ContractPublication.builder(contract)
             .func('_multi', ['string', 'number', 'boolean'], 'boolean')
             .build();

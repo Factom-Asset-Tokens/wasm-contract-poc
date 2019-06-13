@@ -12,6 +12,7 @@ const Walloc = require('walloc');
 const metering = require('wasm-metering');
 
 const ContractPublication = require('./ContractPublication');
+const Void = require('./Void');
 
 class Contract {
     constructor(id) {
@@ -256,10 +257,6 @@ function applyCall(wasm, abi, func, args) {
     } catch (e) {
         throw new Error("WASM Call Error:" + e.message);
     }
-}
-
-//holder class for undefined return type
-class Void {
 }
 
 module.exports = Contract;
