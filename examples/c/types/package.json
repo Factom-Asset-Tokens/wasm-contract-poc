@@ -3,7 +3,7 @@
   "description": "Example to use strings in JS from C WASM",
   "main": "index.js",
   "scripts": {
-    "build": "rm -f build/types.wasm && emcc src/types.c -s ONLY_MY_CODE=1 -s WASM=1 -s EXPORTED_FUNCTIONS=\"['_getInStrOffset', '_getTen', '_add', '_mult', '_getTenPointZeroOne', '_addFloats', '_getString', '_echoString', '_echoStringParam', '_getTrue', '_getFalse', '_echoBoolean', '_negate', '_or']\"  -o build/types.wasm",
+    "build": "rm -f build/types.wasm && emcc src/types.c -s ONLY_MY_CODE=1 -s WASM=1 -s EXPORTED_FUNCTIONS=\"['_getInStrOffset', '_getTen', '_add', '_mult', '_getTenPointZeroOne', '_addFloats', '_getString', '_echoString', '_echoStringParam', '_echoIntegerArray', '_echoFloatArray', '_getTrue', '_getFalse', '_echoBoolean', '_negate', '_or']\"  -o build/types.wasm",
     "test": "npm run build && mocha test/*"
   },
   "dependencies": {

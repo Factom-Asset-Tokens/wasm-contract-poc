@@ -20,6 +20,7 @@ int mult(int x, int y){
   return x * y;
 }
 
+
 /*
 
 Floating Points
@@ -36,6 +37,7 @@ double getTenPointZeroOne(){
 float addFloats(float x, float y){
 return x + y;
 }
+
 
 /*
 
@@ -63,12 +65,12 @@ int or(int x,int y){
   return x | y;
 }
 
+
 /*
 
 Strings
 
 */
-
 
 //define a place in memory for string input from the host program
 char inStr[20];
@@ -93,5 +95,20 @@ char * echoString() {
 }
 
 char * echoStringParam(char *x) {
+  return x;
+}
+
+
+/*
+
+Arrays
+
+*/
+
+int * echoIntegerArray(int *x) {
+  return x;
+}
+
+float * echoFloatArray(float *x) {
   return x;
 }
