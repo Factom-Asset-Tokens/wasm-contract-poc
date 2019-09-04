@@ -115,6 +115,7 @@ describe('C WASM: Use Types from JS', function () {
             // debugMem(wasm.imports.env.memory);
         });
 
+        //This is throwing segfaults when run with -SAFE_HEAP and appropriate debug methods
         it('Echo A String - Write in param using program owned memory & offset function', async function () {
 
 
@@ -153,8 +154,6 @@ describe('C WASM: Use Types from JS', function () {
             //allocate an area in memory for our param that is large enough to hold the strings bytes
             //get a pointer to that area
             const paramPointer = walloc.malloc(stringParam.length);
-            let a = walloc.malloc(100);
-            console.log(a);
 
             console.log('PARAM POINTER', paramPointer);
 
@@ -204,7 +203,6 @@ describe('C WASM: Use Types from JS', function () {
             const buffer = fs.readFileSync(path.resolve(__dirname, '../build/types.wasm'));
             wasm = await WebAssembly.instantiate(buffer, imports);
             wasm.imports = imports;
-
 
             //the integer array we'll ask our program to echo back to us
             const integerArray = [1, 2, 3, 4, 5, 6, 7];

@@ -2,16 +2,27 @@
 
 # wasm-contract-poc
 
+> **Please note**: this project is in constant flux (or is dead) and is primarily for experimentation and proof of concept purposes. This project is part of the Factom Asset Token Smart Contract grant series funded by the Factom Protocol. It is designed to test out WASM as a candidate technology for a larger integration with the Factom Asset Token ecosystem.
+>
+> [Factom Asset Tokens Smart Contract Research Grant](https://factomize.com/forums/threads/dbgrow-factom-001-fat-smart-contracts.1960/)
+>
+> [Factom Asset Tokens Smart Contract Research Paper](https://docs.google.com/document/d/12HeGY7WePF9vaAg4CfQlmeseCOBeBgEvrOrE71Tu_w8/edit#)
+>
+> [Factom Asset Tokens Smart Contract Development Grant](https://factomize.com/forums/threads/matt-york-paul-bernier-dbgrow-canonical-ledgers-1-fat-smart-contracts-2-development.2291/)
+
+
+
 An experimental library for publishing and interacting with WASM based smart contracts on the Factom Blockchain.
 
 This library demonstrates:
 
-- Publishing WASM based contracts to a Factom network
-- Calculating state for a contract
+- Publishing WASM based contracts to a Factom network via the first entry in a chain
+  - Storing a binary WASM contract in extids (limit 10KB)
 - Calling functions in a contract
   - Simulating calls (no write)
-  - Writing call entries to Factom
-- Retrieving the deterministic return value & state of a function call
+  - Writing function calls as entries to the contract chain
+- Calculating state for a contract based on call entries
+- Retrieving the deterministic return value & state of a function call by entryhash
 
 
 

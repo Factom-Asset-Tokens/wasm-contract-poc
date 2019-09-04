@@ -11,8 +11,7 @@ const testContractAddress = '898b44ab3c6cb365b7d3b6af32c4b68817a2d0eca39adf53c9e
 describe('Contract Spec', function () {
     this.timeout(10000);
 
-
-    /*it('Publish A Contract', async function () {
+    it('Publish A Contract', async function () {
 
         //get the simple addition example contract
         const contract = fs.readFileSync(path.resolve(__dirname, '../examples/c/add/build/add.wasm'));
@@ -28,7 +27,7 @@ describe('Contract Spec', function () {
         console.log('Published Contract!', result);
 
         assert.isString(result);
-    });*/
+    });
 
     let contract;
     it('Load A Contract', async function () {
