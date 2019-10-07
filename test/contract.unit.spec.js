@@ -24,7 +24,7 @@ describe('Contract Spec', function () {
         //publish to Factom
         const result = await Contract.publish(publication);
 
-        console.log('Published Contract!', result);
+        // console.log('Published Contract!', result);
 
         assert.isString(result);
     });
@@ -34,7 +34,7 @@ describe('Contract Spec', function () {
         contract = new Contract(testContractAddress);
         await contract.init();
 
-        console.log('Loaded add.wasm contract!');
+        // console.log('Loaded add.wasm contract!');
     });
 
     it('Get WASM Instance Copy', async function () {
@@ -52,12 +52,12 @@ describe('Contract Spec', function () {
     it('Call Contract Function - Write', async function () {
         const call = await contract.call('_addRunning', [3]);
         assert.isNumber(call.result);
-        console.log('Wrote writing call', call);
+        // console.log('Wrote writing call', call);
     });
 
     it('Get Result Of Call', async function () {
         const result = await contract.getResult('40b201a2c76a536813e792de6bb4d62853d88b03dfa2912d8bac6fbb0631e880');
-        console.log('RES:', result);
+        // console.log('RES:', result);
         assert.strictEqual(result, 18);
     });
 });
@@ -79,7 +79,7 @@ describe('Types Contract', function () {
         //publish to Factom
         const result = await Contract.publish(publication);
 
-        console.log('Published Types Contract!', result);
+        // console.log('Published Types Contract!', result);
 
         assert.isString(result);
     });
@@ -89,7 +89,7 @@ describe('Types Contract', function () {
         contract = new Contract('e8da59ec83df29867e55bbfc48a5b74025cb3d443e2c785c5f2f448553de3a6f');
         await contract.init();
 
-        console.log('Loaded types.wasm contract!');
+        // console.log('Loaded types.wasm contract!');
     });
 
     it('Call Contract Function - Negate Boolean', async function () {
