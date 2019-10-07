@@ -98,7 +98,7 @@ class ContractPublication {
     getChain() {
         return new Chain(Entry.builder()
             .extId(this._wasm, 'binary') //salt the contract to make the deployment random
-            .extId(crypto.randomBytes(16).toString('hex'), 'hex') //salt the contract to make the deployment random
+            .extId(crypto.randomBytes(16).toString('utf8'), 'utf8') //salt the contract to make the deployment random
             .content(JSON.stringify(this.getObject()), 'utf8')
             .build());
     }

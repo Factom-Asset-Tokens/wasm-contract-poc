@@ -61,7 +61,7 @@ class Contract {
         imports.metering = {
             usegas: (gas) => {
                 gasUsed += gas;
-                console.log('GAS-', gasUsed);
+                // console.log('GAS-', gasUsed);
                 if (gasUsed > gasLimit) {
                     throw new Error('out of gas!')
                 }
@@ -102,7 +102,7 @@ class Contract {
                 self.entryErrors++;
             }
         });
-        console.log("Loaded", entries.length, "State Changes");
+        // console.log("Loaded", entries.length, "State Changes");
 
         this._init = true;
     }
@@ -119,7 +119,7 @@ class Contract {
         imports.metering = {
             usegas: (gas) => {
                 gasUsed += gas;
-                console.log('GAS-', gasUsed);
+                // console.log('GAS-', gasUsed);
                 if (gasUsed > gasLimit) {
                     throw new Error('Out of Gas!')
                 }
@@ -171,7 +171,7 @@ class Contract {
         if (delta && write) {
             const entry = Entry.builder()
                 .chainId(this._id)
-                .extId(crypto.randomBytes(16).toString('hex'), 'hex')
+                .extId(crypto.randomBytes(16).toString('utf8'), 'utf8')
                 .content(JSON.stringify({func, args}), 'utf8')
                 .build();
 

@@ -6,10 +6,10 @@ const assert = require('chai').assert;
 const Contract = require('../src/Contract');
 const ContractPublication = require('../src/ContractPublication');
 
-const testContractAddress = '898b44ab3c6cb365b7d3b6af32c4b68817a2d0eca39adf53c9e7b7df3017d25b';
+const testContractAddress = '7486a1669fa743d89a60845e396fec30f514c20c1b8ad37f90e3e460040b52f4';
 
 describe('Contract Spec', function () {
-    this.timeout(10000);
+    this.timeout(60000);
 
     it('Publish A Contract', async function () {
 
@@ -52,16 +52,18 @@ describe('Contract Spec', function () {
     it('Call Contract Function - Write', async function () {
         const call = await contract.call('_addRunning', [3]);
         assert.isNumber(call.result);
+        console.log('Wrote writing call', call);
     });
 
     it('Get Result Of Call', async function () {
-        const result = await contract.getResult('a0dbead86874532ef4fc150ae4dd2590b7ed85541e50369225305bf3e7846d18');
-        assert.strictEqual(result, 13);
+        const result = await contract.getResult('40b201a2c76a536813e792de6bb4d62853d88b03dfa2912d8bac6fbb0631e880');
+        console.log('RES:', result);
+        assert.strictEqual(result, 18);
     });
 });
 
 describe('Types Contract', function () {
-    this.timeout(10000);
+    this.timeout(60000);
 
     it('Publish Types Contract', async function () {
 
@@ -84,7 +86,7 @@ describe('Types Contract', function () {
 
     let contract;
     it('Load Types Contract', async function () {
-        contract = new Contract('ead7b8ea8e8dced26cd6a7be50c7d832c93443a571d1fc61f3df677109c33088');
+        contract = new Contract('e8da59ec83df29867e55bbfc48a5b74025cb3d443e2c785c5f2f448553de3a6f');
         await contract.init();
 
         console.log('Loaded types.wasm contract!');
